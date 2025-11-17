@@ -1,17 +1,4 @@
-import HeroSection from "@/components/HeroSection";
-import HowItWorks from "@/components/HowItWorks";
-import Features from "@/components/Features";
-import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
-
 export default function Home() {
-  return (
-    <div className="min-h-screen">
-      <HeroSection />
-      <HowItWorks />
-      <Features />
-      
-      export default function Home() {
   return (
     <div className="min-h-screen p-8">
       <h1 className="text-4xl font-bold mb-4">MediaShare Bridge</h1>
@@ -26,9 +13,6 @@ export default function Home() {
           <p>See all your uploaded files</p>
         </div>
       </div>
-    </div>
-  );
-}
     </div>
   );
 }

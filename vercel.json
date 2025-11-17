@@ -11,10 +11,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "functions": {
-    "api/*.ts": {
-      "runtime": "@vercel/node"
-    }
-  }
+  ]
 }

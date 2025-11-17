@@ -10,6 +10,7 @@ import {
   uploadVideoToTelegram,
   uploadDocumentToTelegram,
   getTelegramFileLink,
+  type TelegramFileUpload,
 } from "../server/telegram";
 import { insertUploadedFileSchema } from "../shared/schema";
 
@@ -33,7 +34,7 @@ app.get("/api", (req, res) => {
 // Get all files
 app.get("/api/files", async (req, res) => {
   try {
-    const files = await storage.getFiles();
+    const files = await storage.getAllUploadedFiles();
     return res.json(files);
   } catch (error) {
     console.error("Error fetching files:", error);
@@ -53,28 +54,30 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 
     const file = req.file;
     const fileId = nanoid();
+    const shareLink = nanoid(8);
     
-    let telegramFileId: string;
-    let telegramFileUrl: string;
+    let telegramUpload: { fileId: string; messageId: number };
     
     // Upload to Telegram based on file type
     if (file.mimetype.startsWith('image/')) {
-      telegramFileId = await uploadPhotoToTelegram(file.buffer, file.originalname);
+      telegramUpload = await uploadPhotoToTelegram(file.buffer, file.originalname);
     } else if (file.mimetype.startsWith('video/')) {
-      telegramFileId = await uploadVideoToTelegram(file.buffer, file.originalname);
+      telegramUpload = await uploadVideoToTelegram(file.buffer, file.originalname);
     } else {
-      telegramFileId = await uploadDocumentToTelegram(file.buffer, file.originalname);
+      telegramUpload = await uploadDocumentToTelegram(file.buffer, file.originalname);
     }
     
-    telegramFileUrl = getTelegramFileLink(telegramFileId);
+    const telegramFileUrl = await getTelegramFileLink(telegramUpload.fileId);
     
     // Save to database
-    const newFile = await storage.addFile({
+    const newFile = await storage.createUploadedFile({
       id: fileId,
       filename: file.originalname,
       mimeType: file.mimetype,
       size: file.size,
-      telegramFileId,
+      shareLink,
+      telegramFileId: telegramUpload.fileId,
+      telegramMessageId: telegramUpload.messageId,
       telegramFileUrl,
     });
     
@@ -91,7 +94,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 // Get file by ID
 app.get("/api/files/:id", async (req, res) => {
   try {
-    const file = await storage.getFile(req.params.id);
+    const file = await storage.getUploadedFile(req.params.id);
     if (!file) {
       return res.status(404).json({ error: "File not found" });
     }
@@ -108,7 +111,7 @@ app.get("/api/files/:id", async (req, res) => {
 // Delete file
 app.delete("/api/files/:id", async (req, res) => {
   try {
-    await storage.deleteFile(req.params.id);
+    await storage.deleteUploadedFile(req.params.id);
     return res.json({ success: true });
   } catch (error) {
     console.error("Error deleting file:", error);

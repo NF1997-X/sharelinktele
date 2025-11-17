@@ -2,24 +2,37 @@
 
 ## 📋 Langkah-langkah Deployment
 
-### 1. Setup Repository
-1. Push kod anda ke GitHub repository
-2. Pastikan semua file konfigurasi sudah ada:
-   - `vercel.json` ✅
-   - `.env.example` ✅
-   - `package.json` dengan script yang betul ✅
+### 1. Setup Repository ✅
+Repository sudah siap dengan:
+- `vercel.json` - Konfigurasi deployment ✅
+- `api/index.ts` - Serverless function untuk API ✅
+- `.env.example` - Template environment variables ✅
+- Build configuration yang betul ✅
 
-### 2. Login ke Vercel
+### 2. Deploy ke Vercel
+
+#### Via Vercel Website:
 1. Pergi ke [vercel.com](https://vercel.com)
-2. Login dengan GitHub account anda
+2. Login dengan GitHub account
 3. Klik **"New Project"**
+4. Import repository `sharelinktele`
+5. **Framework**: Vite (auto-detected)
+6. **Build Command**: `npm run build`
+7. **Output Directory**: `dist/public`
 
-### 3. Import Repository
-1. Pilih repository `sharelinktele` anda
-2. Klik **"Import"**
-3. Vercel akan auto-detect framework (Vite)
+#### Via Vercel CLI (Recommended):
+```bash
+# Install Vercel CLI
+npm i -g vercel
 
-### 4. Configure Environment Variables
+# Login
+vercel login
+
+# Deploy
+vercel --prod
+```
+
+### 3. Environment Variables
 Dalam Vercel dashboard, pergi ke **Settings > Environment Variables** dan tambah:
 
 ```
@@ -29,41 +42,60 @@ TELEGRAM_CHANNEL_ID = your_telegram_channel_id
 NODE_ENV = production
 ```
 
-### 5. Deploy Settings
-- **Build Command**: `npm run vercel-build`
-- **Output Directory**: `dist`
-- **Install Command**: `npm install`
+**PENTING**: Pastikan semua environment variables di set sebelum deploy!
 
-### 6. Deploy
-1. Klik **"Deploy"**
-2. Tunggu process selesai (biasanya 1-2 minit)
-3. Anda akan dapat domain seperti: `your-app.vercel.app`
+### 4. Verify Deployment
+- Frontend: `https://your-app.vercel.app`
+- API: `https://your-app.vercel.app/api/files`
 
-## 🔧 Troubleshooting
+## 🔧 Common Issues & Solutions
 
-### Jika Build Gagal:
-1. Check build logs dalam Vercel dashboard
-2. Pastikan semua dependencies ada dalam `package.json`
-3. Check environment variables betul-betul set
+### Build Error:
+```bash
+# Test build locally first
+npm run build
+```
 
-### Jika Database Error:
-1. Pastikan DATABASE_URL betul dalam environment variables
-2. Test connection dari local dulu
-3. Check Neon database masih active
+### API Not Working:
+- Check environment variables dalam Vercel dashboard
+- Verify `api/index.ts` file exists
+- Check function logs dalam Vercel dashboard
 
-### Jika API Routes Tak Berfungsi:
-1. Check `vercel.json` routing configuration
-2. Pastikan server exports betul dalam `server/index.ts`
+### Database Connection Error:
+```
+Error: DATABASE_URL must be set
+```
+**Solution**: Set DATABASE_URL dalam Vercel environment variables
+
+### Telegram Bot Error:
+```
+Error: TELEGRAM_BOT_TOKEN must be set
+```
+**Solution**: Set TELEGRAM_BOT_TOKEN dan TELEGRAM_CHANNEL_ID
+
+## 🚀 Quick Deploy Commands
+
+```bash
+# 1. Final check
+npm run build
+
+# 2. Deploy with Vercel CLI
+npx vercel --prod
+
+# 3. Set environment variables (if first time)
+npx vercel env add DATABASE_URL
+npx vercel env add TELEGRAM_BOT_TOKEN
+npx vercel env add TELEGRAM_CHANNEL_ID
+```
 
 ## 📱 Custom Domain (Optional)
-1. Dalam Vercel dashboard, pergi ke **Settings > Domains**
-2. Tambah domain anda
-3. Update DNS settings mengikut arahan Vercel
+1. Dalam Vercel dashboard → **Settings > Domains**
+2. Add your domain
+3. Update DNS records mengikut arahan
 
 ## 🔄 Auto Deployment
-Setiap kali anda push ke main branch, Vercel akan auto-deploy!
+Every push ke `main` branch akan auto-deploy! 🎉
 
-## 📞 Support
-Jika ada masalah, check:
-- [Vercel Documentation](https://vercel.com/docs)
-- [Vercel Discord](https://discord.gg/vercel)
+---
+**Status**: ✅ Ready for deployment!
+**Last updated**: Nov 17, 2025

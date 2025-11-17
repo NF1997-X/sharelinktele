@@ -25,8 +25,8 @@ function Router() {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [showContent, setShowContent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Changed from true to false
+  const [showContent, setShowContent] = useState(true); // Changed from false to true
 
   useEffect(() => {
     const timer = setTimeout(() => {

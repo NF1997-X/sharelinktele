@@ -25,32 +25,26 @@ function Router() {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(false); // Changed from true to false
-  const [showContent, setShowContent] = useState(true); // Changed from false to true
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      setTimeout(() => setShowContent(true), 100);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        {isLoading && <LoadingScreen />}
-        {!isLoading && (
-          <div className={`min-h-screen bg-background transition-all duration-500 ${showContent ? 'animate-in fade-in zoom-in-95' : 'opacity-0 scale-95'}`}>
+  try {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <div className="min-h-screen bg-background">
             <Navigation />
             <Router />
           </div>
-        )}
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  } catch (error) {
+    return (
+      <div style={{ padding: '20px', color: 'red' }}>
+        <h1>Error Loading App</h1>
+        <p>{error instanceof Error ? error.message : 'Unknown error'}</p>
+      </div>
+    );
+  }
 }
 
 export default App;

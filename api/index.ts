@@ -71,14 +71,13 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
     
     // Save to database
     const newFile = await storage.createUploadedFile({
-      id: fileId,
-      filename: file.originalname,
+      fileName: file.originalname,
+      fileSize: file.size,
+      fileType: file.mimetype.split('/')[0], // 'image', 'video', 'application', etc
       mimeType: file.mimetype,
-      size: file.size,
       shareLink,
       telegramFileId: telegramUpload.fileId,
       telegramMessageId: telegramUpload.messageId,
-      telegramFileUrl,
     });
     
     return res.json(newFile);

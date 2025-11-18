@@ -168,7 +168,7 @@ export default function Upload() {
           });
         });
 
-        xhr.open("POST", "/api/upload");
+        xhr.open("POST", "/api/upload-simple");
         xhr.send(formData);
       } catch (error) {
         console.error('Upload setup error:', error);

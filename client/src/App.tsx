@@ -56,13 +56,6 @@ function App() {
       return () => window.removeEventListener('load', finishLoading);
     }
   }, []);
-    if (document.readyState === 'complete') {
-      finishLoading();
-    } else {
-      window.addEventListener('load', finishLoading);
-      return () => window.removeEventListener('load', finishLoading);
-    }
-  }, []);
 
   try {
     return (

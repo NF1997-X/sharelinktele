@@ -18,48 +18,76 @@ function generateId(length = 8) {
   return result;
 }
 
-// Parse multipart form data (simplified)
+// Parse multipart form data (improved)
 async function parseMultipart(req) {
-  const chunks = [];
-  for await (const chunk of req) {
-    chunks.push(chunk);
-  }
-  const buffer = Buffer.concat(chunks);
-  
-  // Basic multipart parsing (for demo)
-  const boundary = req.headers['content-type']?.match(/boundary=(.+)/)?.[1];
-  if (!boundary) {
-    throw new Error('No boundary found');
-  }
-  
-  const parts = buffer.toString('binary').split('--' + boundary);
-  
-  for (const part of parts) {
-    if (part.includes('filename=')) {
-      const lines = part.split('\r\n');
-      const headerEndIndex = lines.findIndex(line => line === '');
-      
-      if (headerEndIndex !== -1) {
-        const headers = lines.slice(0, headerEndIndex).join('\r\n');
-        const filename = headers.match(/filename="([^"]+)"/)?.[1];
-        const contentType = headers.match(/Content-Type:\s*([^\r\n]+)/)?.[1];
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let totalLength = 0;
+    
+    req.on('data', (chunk) => {
+      chunks.push(chunk);
+      totalLength += chunk.length;
+    });
+    
+    req.on('end', () => {
+      try {
+        const buffer = Buffer.concat(chunks, totalLength);
         
-        if (filename) {
-          const fileData = lines.slice(headerEndIndex + 1, -1).join('\r\n');
-          const fileBuffer = Buffer.from(fileData, 'binary');
-          
-          return {
-            filename,
-            contentType: contentType || 'application/octet-stream',
-            buffer: fileBuffer,
-            size: fileBuffer.length
-          };
+        // Get boundary from content-type header
+        const contentType = req.headers['content-type'] || '';
+        const boundaryMatch = contentType.match(/boundary=(.+)$/);
+        
+        if (!boundaryMatch) {
+          return reject(new Error('No boundary found in Content-Type header'));
         }
+        
+        const boundary = '--' + boundaryMatch[1];
+        const parts = buffer.toString('binary').split(boundary);
+        
+        // Find the file part
+        for (let i = 1; i < parts.length - 1; i++) {
+          const part = parts[i];
+          
+          if (part.includes('filename=')) {
+            const headerEnd = part.indexOf('\r\n\r\n');
+            if (headerEnd === -1) continue;
+            
+            const headers = part.substring(0, headerEnd);
+            const filenameMatch = headers.match(/filename="([^"]+)"/);
+            const contentTypeMatch = headers.match(/Content-Type:\s*([^\r\n]+)/);
+            
+            if (filenameMatch) {
+              const filename = filenameMatch[1];
+              const contentType = contentTypeMatch ? contentTypeMatch[1].trim() : 'application/octet-stream';
+              
+              // Extract file data (remove the leading \r\n and trailing \r\n)
+              const fileDataStart = headerEnd + 4; // Skip \r\n\r\n
+              const fileDataEnd = part.lastIndexOf('\r\n');
+              const fileData = part.substring(fileDataStart, fileDataEnd);
+              
+              // Convert from binary string to Buffer
+              const fileBuffer = Buffer.from(fileData, 'binary');
+              
+              return resolve({
+                filename,
+                contentType,
+                buffer: fileBuffer,
+                size: fileBuffer.length
+              });
+            }
+          }
+        }
+        
+        reject(new Error('No file found in multipart data'));
+      } catch (error) {
+        reject(new Error(`Failed to parse multipart data: ${error.message}`));
       }
-    }
-  }
-  
-  throw new Error('No file found in upload');
+    });
+    
+    req.on('error', (error) => {
+      reject(new Error(`Request error: ${error.message}`));
+    });
+  });
 }
 
 // Upload to Telegram

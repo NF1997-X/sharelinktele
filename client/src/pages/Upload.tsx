@@ -141,11 +141,21 @@ export default function Upload() {
               description: `${file.name} has been uploaded`,
             });
           } else {
-            throw new Error("Upload failed");
+            console.error('Upload failed with status:', xhr.status);
+            console.error('Response text:', xhr.responseText);
+            let errorMessage = "Upload failed";
+            try {
+              const errorData = JSON.parse(xhr.responseText);
+              errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {
+              errorMessage = `Upload failed with status ${xhr.status}`;
+            }
+            throw new Error(errorMessage);
           }
         });
 
         xhr.addEventListener("error", () => {
+          console.error('XHR error occurred during upload');
           setUploadingFiles(prev => {
             const newMap = new Map(prev);
             newMap.delete(tempId);
@@ -153,7 +163,7 @@ export default function Upload() {
           });
           toast({
             title: "Upload failed",
-            description: `Failed to upload ${file.name}`,
+            description: `Network error while uploading ${file.name}`,
             variant: "destructive",
           });
         });
@@ -161,14 +171,16 @@ export default function Upload() {
         xhr.open("POST", "/api/upload");
         xhr.send(formData);
       } catch (error) {
+        console.error('Upload setup error:', error);
         setUploadingFiles(prev => {
           const newMap = new Map(prev);
           newMap.delete(tempId);
           return newMap;
         });
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         toast({
           title: "Upload error",
-          description: `Could not upload ${file.name}`,
+          description: `${errorMessage} (File: ${file.name})`,
           variant: "destructive",
         });
       }

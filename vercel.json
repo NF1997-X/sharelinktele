@@ -4,6 +4,11 @@
   "outputDirectory": "dist/public",
   "routes": [
     {
+      "src": "/api/files/([^/]+)",
+      "dest": "/api/delete.js?id=$1",
+      "methods": ["DELETE"]
+    },
+    {
       "src": "/api/share/([^/]+)",
       "dest": "/api/share.js?shareLink=$1"
     },

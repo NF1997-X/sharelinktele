@@ -19,9 +19,26 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      // Handle file deletion
-      const { pathname } = new URL(req.url, 'http://localhost');
-      const fileId = pathname.split('/').pop();
+      // Handle file deletion - extract ID from query or URL
+      let fileId;
+      
+      // Try to get from URL path
+      if (req.url) {
+        const urlParts = req.url.split('/');
+        fileId = urlParts[urlParts.length - 1];
+      }
+      
+      // Fallback to query parameter
+      if (!fileId && req.query && req.query.id) {
+        fileId = req.query.id;
+      }
+      
+      if (!fileId) {
+        return res.status(400).json({
+          error: 'File ID required',
+          message: 'Please provide a file ID to delete'
+        });
+      }
       
       console.log(`Delete request for file ID: ${fileId}`);
       

@@ -75,6 +75,34 @@ export default function Upload() {
 
   const handleFilesSelected = async (selectedFiles: File[]) => {
     for (const file of selectedFiles) {
+      // Validate file size before uploading
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      if (file.size > maxSize) {
+        toast({
+          title: "File too large",
+          description: `${file.name} is ${formatFileSize(file.size)}. Maximum file size is 50MB.`,
+          variant: "destructive",
+        });
+        continue;
+      }
+      
+      // Validate file type
+      const allowedTypes = [
+        'image/', 'video/', 'audio/', 'application/pdf', 
+        'application/msword', 'application/vnd.openxmlformats-officedocument',
+        'application/zip', 'application/x-rar', 'application/x-7z-compressed'
+      ];
+      
+      const isValidType = allowedTypes.some(type => file.type.startsWith(type));
+      if (!isValidType) {
+        toast({
+          title: "Unsupported file type",
+          description: `${file.name} - Please upload images, videos, documents, or archives only.`,
+          variant: "destructive",
+        });
+        continue;
+      }
+
       const tempId = `temp-${Date.now()}-${Math.random()}`;
       const startTime = Date.now();
       
@@ -136,20 +164,54 @@ export default function Upload() {
               return newMap;
             });
             queryClient.invalidateQueries({ queryKey: ["/api/files"] });
-            toast({
-              title: "Upload successful",
-              description: `${file.name} has been uploaded`,
-            });
+            
+            // Parse response to get file details
+            try {
+              const response = JSON.parse(xhr.responseText);
+              toast({
+                title: "Upload successful!",
+                description: `${file.name} uploaded successfully${response.file?.shareLink ? ` - Share link: ${response.file.shareLink}` : ''}`,
+              });
+            } catch {
+              toast({
+                title: "Upload successful",
+                description: `${file.name} has been uploaded`,
+              });
+            }
           } else {
             console.error('Upload failed with status:', xhr.status);
             console.error('Response text:', xhr.responseText);
             let errorMessage = "Upload failed";
+            let errorDetails = "";
             try {
               const errorData = JSON.parse(xhr.responseText);
               errorMessage = errorData.message || errorData.error || errorMessage;
+              errorDetails = errorData.details || "";
+              
+              // Show specific error for file size
+              if (xhr.status === 413 || errorMessage.includes('too large')) {
+                errorMessage = "File too large";
+                errorDetails = "Maximum file size is 50MB. Please choose a smaller file.";
+              }
             } catch {
               errorMessage = `Upload failed with status ${xhr.status}`;
+              if (xhr.status === 413) {
+                errorDetails = "File size exceeds the maximum limit.";
+              }
             }
+            
+            setUploadingFiles(prev => {
+              const newMap = new Map(prev);
+              newMap.delete(tempId);
+              return newMap;
+            });
+            
+            toast({
+              title: errorMessage,
+              description: errorDetails || `Error uploading ${file.name}`,
+              variant: "destructive",
+            });
+            
             throw new Error(errorMessage);
           }
         });

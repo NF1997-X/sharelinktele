@@ -78,7 +78,7 @@ export default function UploadZone({ onFilesSelected }: UploadZoneProps) {
             Drag and drop files or click to browse
           </p>
           <p className="text-xs text-muted-foreground">
-            Up to 1GB per file • All video formats supported
+            Up to 50MB per file • Images, Videos, Documents
           </p>
         </div>
 

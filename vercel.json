@@ -2,28 +2,7 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
-  "functions": {
-    "api/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "routes": [
-    {
-      "src": "/api/upload",
-      "dest": "/api/upload.ts"
-    },
-    {
-      "src": "/api/test",
-      "dest": "/api/test.ts"
-    },
-    {
-      "src": "/api/health",
-      "dest": "/api/health.ts"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.ts"
-    },
     {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"

@@ -4,26 +4,35 @@ import { Link } from "wouter";
 
 export default function HeroSection() {
   return (
-    <section className="py-16">
+    <section className="py-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-10">
-          <div className="flex-1 text-center lg:text-left">
-            <h1 className="text-2xl lg:text-3xl font-semibold text-foreground mb-4">
+          <div className="flex-1 text-center lg:text-left animate-in fade-in slide-in-from-left-8 duration-700 delay-150">
+            <h1 className="text-2xl lg:text-3xl font-semibold text-foreground mb-4 animate-in fade-in slide-in-from-top-4 duration-700 delay-300">
               Share Your Media Instantly with Telegram
             </h1>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            <p className="text-sm text-muted-foreground mb-6 leading-relaxed animate-in fade-in slide-in-from-top-4 duration-700 delay-500">
               Upload your files, get shareable links powered by Telegram. 
               Fast, secure, and effortless file sharing for everyone.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700">
               <Link href="/upload">
-                <Button size="default" className="px-6" data-testid="button-start-sharing">
+                <Button 
+                  size="default" 
+                  className="px-6 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg transform" 
+                  data-testid="button-start-sharing"
+                >
                   Start Sharing
-                  <Upload className="ml-2 h-4 w-4" />
+                  <Upload className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                 </Button>
               </Link>
               <Link href="/library">
-                <Button variant="outline" size="default" className="px-6" data-testid="button-view-library">
+                <Button 
+                  variant="outline" 
+                  size="default" 
+                  className="px-6 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md transform" 
+                  data-testid="button-view-library"
+                >
                   View Library
                 </Button>
               </Link>

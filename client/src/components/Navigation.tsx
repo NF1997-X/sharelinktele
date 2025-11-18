@@ -40,9 +40,12 @@ export default function Navigation() {
                   <Button
                     variant={isActive ? "secondary" : "ghost"}
                     size="sm"
+                    className="transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-md"
                     data-testid={`link-nav-${item.label.toLowerCase()}`}
                   >
-                    <Icon className="h-3.5 w-3.5 mr-1.5" />
+                    <Icon className={`h-3.5 w-3.5 mr-1.5 transition-transform duration-200 ${
+                      isActive ? 'scale-110' : ''
+                    }`} />
                     <span className="text-xs">{item.label}</span>
                   </Button>
                 </Link>
@@ -57,37 +60,46 @@ export default function Navigation() {
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="md:hidden transition-all duration-200 ease-in-out hover:scale-110 hover:bg-secondary/50"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMobileMenuOpen ? (
-                <X className="h-4 w-4" />
-              ) : (
-                <Menu className="h-4 w-4" />
-              )}
+              <div className="relative w-4 h-4">
+                <X className={`h-4 w-4 absolute transition-all duration-300 ease-in-out ${
+                  isMobileMenuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-50'
+                }`} />
+                <Menu className={`h-4 w-4 absolute transition-all duration-300 ease-in-out ${
+                  !isMobileMenuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'
+                }`} />
+              </div>
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background">
+          <div className="md:hidden border-t border-border bg-background animate-in slide-in-from-top-2 duration-200">
             <nav className="py-4 space-y-2">
-              {navItems.map((item) => {
+              {navItems.map((item, index) => {
                 const Icon = item.icon;
                 const isActive = location === item.path;
                 
                 return (
                   <Link key={item.path} href={item.path}>
                     <div
-                      className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                      className={`flex items-center gap-3 px-4 py-2 text-sm transition-all duration-200 ease-in-out transform ${
                         isActive 
-                          ? "bg-secondary text-secondary-foreground" 
-                          : "hover:bg-secondary/50"
+                          ? "bg-secondary text-secondary-foreground scale-[1.02]" 
+                          : "hover:bg-secondary/50 hover:translate-x-2"
                       }`}
+                      style={{ 
+                        animationDelay: `${index * 50}ms`,
+                        animation: 'fadeInUp 0.3s ease-out forwards'
+                      }}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className={`h-4 w-4 transition-transform duration-200 ${
+                        isActive ? 'scale-110' : ''
+                      }`} />
                       <span>{item.label}</span>
                     </div>
                   </Link>

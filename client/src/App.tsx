@@ -25,23 +25,52 @@ function Router() {
 }
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    // Simulate loading time for smooth UX
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      // Small delay for smooth transition
+      setTimeout(() => setShowContent(true), 150);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   try {
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <div className="min-h-screen bg-background">
-            <Navigation />
-            <Router />
-          </div>
+          {isLoading && <LoadingScreen />}
+          {!isLoading && (
+            <div 
+              className={`min-h-screen bg-background transition-all duration-700 ease-out ${
+                showContent 
+                  ? 'animate-in fade-in zoom-in-95 duration-500' 
+                  : 'opacity-0 scale-95'
+              }`}
+            >
+              <Navigation />
+              <main className="transition-all duration-300 ease-in-out">
+                <Router />
+              </main>
+            </div>
+          )}
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>
     );
   } catch (error) {
     return (
-      <div style={{ padding: '20px', color: 'red' }}>
-        <h1>Error Loading App</h1>
-        <p>{error instanceof Error ? error.message : 'Unknown error'}</p>
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold text-red-600">Error Loading App</h1>
+          <p className="text-muted-foreground">
+            {error instanceof Error ? error.message : 'Unknown error occurred'}
+          </p>
+        </div>
       </div>
     );
   }

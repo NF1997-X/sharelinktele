@@ -1,5 +1,6 @@
 import formidable from 'formidable';
 import { uploadFileToTelegram } from './telegram-utils.js';
+import { addFile } from './file-store.js';
 import { randomBytes } from 'crypto';
 import { readFileSync } from 'fs';
 
@@ -118,8 +119,8 @@ export default async function handler(req, res) {
       };
     }
 
-    // Mock database save
-    const savedFile = {
+    // Save to shared store
+    const savedFile = addFile({
       id: generateId(16),
       fileName: fileData.filename,
       fileSize: fileData.size,
@@ -129,9 +130,9 @@ export default async function handler(req, res) {
       telegramFileId: telegramResult.fileId,
       telegramMessageId: telegramResult.messageId,
       uploadedAt: new Date().toISOString()
-    };
+    });
 
-    console.log('File processed successfully:', savedFile.id);
+    console.log('File saved to store:', savedFile.id);
 
     return res.status(200).json({
       success: true,

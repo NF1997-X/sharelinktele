@@ -1,3 +1,5 @@
+import { getAllFiles, deleteFile } from './file-store.js';
+
 export default async function handler(req, res) {
   // Add CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,34 +13,9 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Return mock files for now
-      // In production, this would query the database
-      const mockFiles = [
-        {
-          id: "demo-1",
-          fileName: "demo-image.jpg",
-          fileSize: 2048000,
-          fileType: "image",
-          mimeType: "image/jpeg",
-          shareLink: "abc123",
-          uploadedAt: "2025-11-18T12:00:00.000Z",
-          telegramFileId: "demo-file-id-1",
-          telegramMessageId: 123
-        },
-        {
-          id: "demo-2", 
-          fileName: "demo-video.mp4",
-          fileSize: 10485760,
-          fileType: "video",
-          mimeType: "video/mp4", 
-          shareLink: "def456",
-          uploadedAt: "2025-11-18T11:30:00.000Z",
-          telegramFileId: "demo-file-id-2",
-          telegramMessageId: 124
-        }
-      ];
-
-      return res.status(200).json(mockFiles);
+      // Get all files from store
+      const files = getAllFiles();
+      return res.status(200).json(files);
     }
 
     if (req.method === 'DELETE') {
@@ -48,10 +25,25 @@ export default async function handler(req, res) {
       
       console.log(`Delete request for file ID: ${fileId}`);
       
-      // In production, this would delete from database and Telegram
+      const deletedFile = deleteFile(fileId);
+      
+      if (!deletedFile) {
+        return res.status(404).json({
+          error: 'File not found',
+          message: `File with ID ${fileId} does not exist`
+        });
+      }
+      
+      // In production, you would also delete from Telegram here
+      console.log(`Successfully deleted file: ${deletedFile.fileName}`);
+      
       return res.status(200).json({
         success: true,
-        message: `File ${fileId} deleted successfully`,
+        message: `File ${deletedFile.fileName} deleted successfully`,
+        deletedFile: {
+          id: deletedFile.id,
+          fileName: deletedFile.fileName
+        },
         timestamp: new Date().toISOString()
       });
     }

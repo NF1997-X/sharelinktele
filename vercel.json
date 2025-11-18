@@ -4,6 +4,10 @@
   "outputDirectory": "dist/public",
   "routes": [
     {
+      "src": "/api/share/([^/]+)",
+      "dest": "/api/share.js?shareLink=$1"
+    },
+    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },

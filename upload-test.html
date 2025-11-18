@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Test</title>
+</head>
+<body>
+    <h1>File Upload Test</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="file" accept="image/*,video/*,application/pdf" />
+        <button type="submit">Upload</button>
+    </form>
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<p style="color: red;">Please select a file</p>';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            resultDiv.innerHTML = '<p>Uploading...</p>';
+            
+            try {
+                const response = await fetch('/api/upload-v2', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div style="color: green;">
+                            <h3>Upload Successful!</h3>
+                            <p><strong>File:</strong> ${result.file.fileName}</p>
+                            <p><strong>Size:</strong> ${result.debug.originalSize}</p>
+                            <p><strong>Share Link:</strong> ${result.file.shareLink}</p>
+                            <p><strong>Telegram File ID:</strong> ${result.file.telegramFileId}</p>
+                            ${result.debug.isMockTelegram ? '<p style="color: orange;">(Mock Telegram - for demo)</p>' : ''}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">Error: ${result.message}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">Network error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

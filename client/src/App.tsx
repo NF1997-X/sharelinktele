@@ -29,35 +29,68 @@ function App() {
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    // Simulate loading time for smooth UX
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      // Small delay for smooth transition
-      setTimeout(() => setShowContent(true), 150);
-    }, 1000);
+    // Ensure minimum loading time to prevent flickering
+    const minimumLoadTime = 600; // Reduced from 800ms
+    const startTime = Date.now();
 
-    return () => clearTimeout(timer);
+    const finishLoading = () => {
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, minimumLoadTime - elapsedTime);
+      
+      setTimeout(() => {
+        // Use double RAF for ultra-smooth transition
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setIsLoading(false);
+            setShowContent(true);
+          });
+        });
+      }, remainingTime);
+    };
+
+    // Check if document is ready
+    if (document.readyState === 'complete') {
+      finishLoading();
+    } else {
+      window.addEventListener('load', finishLoading);
+      return () => window.removeEventListener('load', finishLoading);
+    }
+  }, []);
+    if (document.readyState === 'complete') {
+      finishLoading();
+    } else {
+      window.addEventListener('load', finishLoading);
+      return () => window.removeEventListener('load', finishLoading);
+    }
   }, []);
 
   try {
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          {isLoading && <LoadingScreen />}
-          {!isLoading && (
-            <div 
-              className={`min-h-screen bg-background transition-all duration-700 ease-out ${
-                showContent 
-                  ? 'animate-in fade-in zoom-in-95 duration-500' 
-                  : 'opacity-0 scale-95'
-              }`}
-            >
-              <Navigation />
-              <main className="transition-all duration-300 ease-in-out">
-                <Router />
-              </main>
+          {/* Loading Screen with improved overlay */}
+          {isLoading && (
+            <div className="fixed inset-0 z-50 bg-background loading-overlay">
+              <LoadingScreen />
             </div>
           )}
+          
+          {/* Main Content with smoother transitions */}
+          <div 
+            className={`min-h-screen bg-background transition-all duration-500 ease-out ${
+              isLoading 
+                ? 'opacity-0 scale-98 pointer-events-none' 
+                : showContent 
+                  ? 'opacity-100 scale-100 smooth-appear' 
+                  : 'opacity-0 scale-98'
+            }`}
+          >
+            <Navigation />
+            <main className="transition-all duration-200 ease-in-out smooth-slide-in">
+              <Router />
+            </main>
+          </div>
+          
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>

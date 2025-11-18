@@ -26,60 +26,53 @@ function Router() {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    // Ensure minimum loading time to prevent flickering
-    const minimumLoadTime = 600; // Reduced from 800ms
-    const startTime = Date.now();
-
-    const finishLoading = () => {
-      const elapsedTime = Date.now() - startTime;
-      const remainingTime = Math.max(0, minimumLoadTime - elapsedTime);
-      
-      setTimeout(() => {
-        // Use double RAF for ultra-smooth transition
+    let timeoutId: NodeJS.Timeout;
+    
+    const initApp = () => {
+      // Shorter, more predictable loading time
+      timeoutId = setTimeout(() => {
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setIsLoading(false);
-            setShowContent(true);
-          });
+          setIsLoading(false);
         });
-      }, remainingTime);
+      }, 500); // Fixed 500ms loading
     };
 
-    // Check if document is ready
-    if (document.readyState === 'complete') {
-      finishLoading();
+    // Start initialization immediately
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
     } else {
-      window.addEventListener('load', finishLoading);
-      return () => window.removeEventListener('load', finishLoading);
+      initApp();
     }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      document.removeEventListener('DOMContentLoaded', initApp);
+    };
   }, []);
 
   try {
     return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          {/* Loading Screen with improved overlay */}
-          {isLoading && (
-            <div className="fixed inset-0 z-50 bg-background loading-overlay">
-              <LoadingScreen />
-            </div>
-          )}
-          
-          {/* Main Content with smoother transitions */}
+          {/* Loading Screen */}
           <div 
-            className={`min-h-screen bg-background transition-all duration-500 ease-out ${
-              isLoading 
-                ? 'opacity-0 scale-98 pointer-events-none' 
-                : showContent 
-                  ? 'opacity-100 scale-100 smooth-appear' 
-                  : 'opacity-0 scale-98'
+            className={`fixed inset-0 z-50 bg-background transition-opacity duration-300 ${
+              isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+          >
+            <LoadingScreen />
+          </div>
+          
+          {/* Main Content */}
+          <div 
+            className={`min-h-screen bg-background transition-opacity duration-300 delay-150 ${
+              isLoading ? 'opacity-0' : 'opacity-100'
             }`}
           >
             <Navigation />
-            <main className="transition-all duration-200 ease-in-out smooth-slide-in">
+            <main>
               <Router />
             </main>
           </div>

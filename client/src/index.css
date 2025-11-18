@@ -451,35 +451,46 @@
   }
 }
 
-/* Apply smooth transitions globally */
+/* Apply only essential transitions */
 *, *::before, *::after {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+  transition-property: opacity;
+  transition-timing-function: ease-out;
+  transition-duration: 200ms;
 }
 
-/* Prevent FOUC */
+/* Prevent FOUC and ensure stability */
 html {
   visibility: visible;
 }
 
-/* Loading optimizations */
-.loading-overlay {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: translateZ(0);
-  will-change: opacity, transform;
+body {
+  margin: 0;
+  padding: 0;
+  opacity: 1;
 }
 
-/* Utility classes for smooth animations */
+/* Simplified smooth animations */
+@keyframes simpleFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes simpleSlideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Essential utility classes */
 .smooth-appear {
-  animation: smoothFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: simpleFadeIn 0.2s ease-out;
 }
 
 .smooth-slide-in {
-  animation: smoothSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.smooth-zoom {
-  animation: smoothZoomIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: simpleSlideUp 0.3s ease-out;
 }

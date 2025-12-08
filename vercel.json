@@ -2,11 +2,25 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
   "routes": [
     {
       "src": "/api/files/([^/]+)",
       "dest": "/api/delete.js?id=$1",
       "methods": ["DELETE"]
+    },
+    {
+      "src": "/s/([^/]+)",
+      "dest": "/api/share.js?shareLink=$1"
+    },
+    {
+      "src": "/share/([^/]+)",
+      "dest": "/api/share.js?shareLink=$1"
     },
     {
       "src": "/api/share/([^/]+)",

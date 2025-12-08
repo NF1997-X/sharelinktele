@@ -1,4 +1,4 @@
-import { deleteFile, getFileById } from './file-store.js';
+import { deleteFile, getFileById } from './db-file-store.js';
 
 export default async function handler(req, res) {
   // Add CORS headers

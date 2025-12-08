@@ -1,4 +1,4 @@
-import { getFileById } from './file-store.js';
+import { getFileByShareLink } from './db-file-store.js';
 import { getTelegramFileUrl } from './telegram-utils.js';
 
 export default async function handler(req, res) {
@@ -31,8 +31,7 @@ export default async function handler(req, res) {
     console.log(`Looking up share link: ${shareLink}`);
 
     // Find file by share link
-    const files = await import('./file-store.js').then(m => m.getAllFiles());
-    const file = files.find(f => f.shareLink === shareLink);
+    const file = await getFileByShareLink(shareLink);
 
     if (!file) {
       return res.status(404).json({

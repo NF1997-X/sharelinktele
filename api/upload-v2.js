@@ -1,6 +1,6 @@
 import formidable from 'formidable';
 import { uploadFileToTelegram } from './telegram-utils.js';
-import { addFile } from './file-store.js';
+import { addFile } from './db-file-store.js';
 import { randomBytes } from 'crypto';
 import { readFileSync } from 'fs';
 
